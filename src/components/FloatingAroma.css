@@ -1,0 +1,31 @@
+.smoke-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 10;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+}
+
+.smoke-particle {
+  position: absolute;
+  bottom: 0; /* Start from the bottom */
+  width: 60px;
+  height: 120px; /* Elongated like smoke */
+  background: radial-gradient(ellipse at center, rgba(230, 220, 210, 0.4) 0%, rgba(250, 248, 245, 0) 70%);
+  border-radius: 50%;
+  filter: blur(20px); /* Heavy blur for soft smoke */
+  transform-origin: center bottom;
+}
+
+.smoke-particle:nth-child(even) {
+  background: radial-gradient(ellipse at center, rgba(210, 200, 190, 0.3) 0%, rgba(250, 248, 245, 0) 70%);
+  width: 80px;
+  height: 160px;
+  filter: blur(25px);
+}

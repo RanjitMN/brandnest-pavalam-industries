@@ -1,0 +1,24 @@
+/* FeaturedProducts */
+.featured-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.25rem;
+}
+
+@media (min-width: 768px) {
+  .featured-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (min-width: 1024px) {
+  .featured-grid { grid-template-columns: repeat(4, 1fr); }
+}
+
+.products-loading {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.25rem;
+}
+
+@media (min-width: 1024px) {
+  .products-loading { grid-template-columns: repeat(4, 1fr); }
+}
