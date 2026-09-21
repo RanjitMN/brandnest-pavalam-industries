@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { FiMail, FiLock, FiEye, FiEyeOff } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { useAuthStore } from '../stores/authStore';
+import BrandLogo from '../components/BrandLogo';
 import './Login.css';
 
 export default function Login() {
@@ -32,11 +33,7 @@ export default function Login() {
       {/* Left Panel */}
       <div className="auth-left">
         <Link to="/" className="auth-logo">
-          <span>🪔</span>
-          <div>
-            <span className="auth-logo-name">Pavalam</span>
-            <span className="auth-logo-sub">Industries</span>
-          </div>
+          <BrandLogo height={58} />
         </Link>
         <div className="auth-left-content">
           <h2>Experience the<br /><span>Divine Fragrance</span></h2>

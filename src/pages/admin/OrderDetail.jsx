@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { FiArrowLeft, FiMapPin, FiPhone, FiMail } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { supabase } from '../../lib/supabase';
+import { formatInr } from '../../lib/utils';
 import './AdminLayout.css';
 
 const statusOptions = ['pending', 'confirmed', 'packed', 'shipped', 'delivered', 'cancelled'];
@@ -48,7 +49,10 @@ export default function OrderDetail() {
             <FiArrowLeft size={14} /> Back to Orders
           </button>
           <h1 className="admin-page-title">{order.order_number}</h1>
-          <p className="admin-page-subtitle">{new Date(order.created_at).toLocaleString('en-IN')}</p>
+          <p className="admin-page-subtitle">
+            {new Date(order.created_at).toLocaleString('en-IN')}
+            {order.channel === 'offline' ? ' · Offline / counter' : ' · Online'}
+          </p>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <span className={`badge ${statusColors[order.status] || 'badge-primary'}`} style={{ padding: '0.4rem 0.9rem', fontSize: '0.85rem' }}>
@@ -99,9 +103,9 @@ export default function OrderDetail() {
                 <tr key={i}>
                   <td style={{ fontWeight: 600 }}>{item.product_name}</td>
                   <td style={{ color: 'var(--color-text-muted)' }}>{item.variant_name || '—'}</td>
-                  <td>₹{item.price?.toFixed(2)}</td>
+                  <td>₹{formatInr(item.price)}</td>
                   <td>{item.quantity}</td>
-                  <td style={{ fontWeight: 700 }}>₹{item.total?.toFixed(2)}</td>
+                  <td style={{ fontWeight: 700 }}>₹{formatInr(item.total)}</td>
                 </tr>
               ))}
             </tbody>
@@ -111,17 +115,17 @@ export default function OrderDetail() {
         {/* Totals */}
         <div style={{ maxWidth: 280, marginLeft: 'auto', marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
           {[
-            { label: 'Subtotal', value: `₹${order.subtotal?.toFixed(2)}` },
-            { label: 'Delivery', value: order.delivery_charge === 0 ? 'Free' : `₹${order.delivery_charge?.toFixed(2)}` },
-            { label: `GST (${order.gst_rate}%)`, value: `₹${order.gst_amount?.toFixed(2)}` },
-            order.discount > 0 && { label: 'Discount', value: `-₹${order.discount?.toFixed(2)}` },
+            { label: 'Subtotal', value: `₹${formatInr(order.subtotal)}` },
+            { label: 'Delivery', value: Number(order.delivery_charge) === 0 ? 'Free' : `₹${formatInr(order.delivery_charge)}` },
+            { label: `GST (${order.gst_rate}%)`, value: `₹${formatInr(order.gst_amount)}` },
+            Number(order.discount) > 0 && { label: 'Discount', value: `-₹${formatInr(order.discount)}` },
           ].filter(Boolean).map(row => (
             <div key={row.label} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem', color: 'var(--color-text-muted)' }}>
               <span>{row.label}</span><span>{row.value}</span>
             </div>
           ))}
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1rem', fontWeight: 700, color: 'var(--color-primary)', borderTop: '1px solid var(--color-border)', paddingTop: '0.5rem', marginTop: '0.25rem' }}>
-            <span>Total</span><span>₹{order.total?.toFixed(2)}</span>
+            <span>Total</span><span>₹{formatInr(order.total)}</span>
           </div>
         </div>
       </div>

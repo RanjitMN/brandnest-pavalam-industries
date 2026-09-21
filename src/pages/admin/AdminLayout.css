@@ -3,7 +3,7 @@
   display: grid;
   grid-template-columns: 1fr;
   min-height: 100vh;
-  background: #F0EDE8;
+  background: #FFF0F6;
 }
 
 @media (min-width: 1024px) {
@@ -44,12 +44,22 @@
 }
 
 .admin-logo-link {
-  display: flex; align-items: center; gap: 0.6rem;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
   text-decoration: none;
+  background: #fff;
+  padding: 0.25rem 0.4rem;
+  border-radius: 8px;
 }
-.admin-logo-link span { font-size: 1.5rem; }
-.admin-logo-name { display: block; font-family: var(--font-serif); font-size: 1.1rem; font-weight: 700; color: var(--color-secondary); line-height: 1; }
-.admin-logo-badge { display: block; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.4); font-weight: 500; margin-top: 0.1rem; }
+.admin-logo-badge {
+  display: block;
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-primary);
+  font-weight: 700;
+}
 
 .sidebar-close-btn {
   width: 28px; height: 28px; background: rgba(255,255,255,0.08);

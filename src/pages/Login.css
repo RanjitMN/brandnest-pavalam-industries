@@ -13,7 +13,7 @@
 .auth-left {
   display: none;
   position: relative;
-  background: linear-gradient(145deg, #2B1813 0%, #4A1C20 60%, #2B1813 100%);
+  background: linear-gradient(145deg, #4A1030 0%, #8A1458 60%, #3A0824 100%);
   overflow: hidden;
   padding: 2.5rem;
   flex-direction: column;
@@ -34,13 +34,14 @@
 .auth-logo {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
   text-decoration: none;
   position: relative;
   z-index: 1;
+  background: #fff;
+  padding: 0.4rem 0.6rem;
+  border-radius: 10px;
+  width: fit-content;
 }
-
-.auth-logo span { font-size: 2rem; }
 
 .auth-logo-name {
   display: block;

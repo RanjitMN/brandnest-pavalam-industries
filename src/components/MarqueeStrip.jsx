@@ -1,28 +1,39 @@
+import { useState } from 'react';
 import './MarqueeStrip.css';
 
 const items = [
-  { icon: '🪔', text: 'Since 1995' },
-  { icon: '🌿', text: '100% Natural Resins' },
-  { icon: '🕉️', text: 'Sacred Ritual Fragrance' },
-  { icon: '✨', text: 'Long Lasting Aroma' },
-  { icon: '🚚', text: 'Pan-India Delivery' },
-  { icon: '🛡️', text: 'Secure Packaging' },
-  { icon: '⭐', text: '4.9 Star Rated' },
-  { icon: '🌸', text: 'Pure Sambrani' },
+  'Since 1995',
+  '100% Natural Resins',
+  'Sacred Ritual Fragrance',
+  'Long Lasting Aroma',
+  'Pan-India Delivery',
+  'Secure Packaging',
+  '4.9 Star Rated',
+  'Pure Cup Sambrani',
 ];
 
-const MarqueeStrip = () => (
-  <section className="marquee-strip">
-    <div className="marquee-track">
-      {[...items, ...items, ...items].map((item, i) => (
-        <div key={i} className="marquee-item">
-          <span className="marquee-icon">{item.icon}</span>
-          <span className="marquee-text">{item.text}</span>
-          <span className="marquee-dot">•</span>
-        </div>
-      ))}
-    </div>
-  </section>
-);
+const MarqueeStrip = () => {
+  const [isPaused, setIsPaused] = useState(false);
+
+  return (
+    <section
+      className="marquee-strip"
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
+      aria-label="Brand highlights"
+    >
+      <div className="marquee-fade marquee-fade-left" aria-hidden="true" />
+      <div className={`marquee-track ${isPaused ? 'paused' : ''}`}>
+        {[...items, ...items, ...items].map((text, i) => (
+          <div key={i} className="marquee-item">
+            <span className="marquee-text">{text}</span>
+            <span className="marquee-dot" aria-hidden="true">✦</span>
+          </div>
+        ))}
+      </div>
+      <div className="marquee-fade marquee-fade-right" aria-hidden="true" />
+    </section>
+  );
+};
 
 export default MarqueeStrip;

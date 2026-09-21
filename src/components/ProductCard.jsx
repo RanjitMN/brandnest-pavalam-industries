@@ -20,7 +20,7 @@ const ProductCard = ({ product }) => {
     if (!inStock) return;
     addItem(product, selectedVariant);
     setAdded(true);
-    toast.success(`${product.name} added to cart!`, { icon: '🪔' });
+    toast.success(`${product.name} added to cart!`);
     setTimeout(() => setAdded(false), 1500);
   };
 
@@ -28,27 +28,25 @@ const ProductCard = ({ product }) => {
 
   return (
     <div className="product-card">
-      {/* Badge */}
       {discount > 0 && (
         <div className="product-discount-badge">-{discount}%</div>
       )}
       {product.is_featured && !discount && (
-        <div className="product-featured-badge">⭐ Best Seller</div>
+        <div className="product-featured-badge">Best Seller</div>
       )}
 
-      {/* Image */}
-      <Link to={`/shop/${product.slug}`} className="product-image-link" id={`product-card-view-${product.id}`}>
+        <Link to={`/products/${product.slug}`} className="product-image-link" id={`product-card-view-${product.id}`}>
         <div className="product-image-wrap">
           {mainImage ? (
-            <img src={mainImage} alt={product.name} className="product-img" />
+            <img src={mainImage} alt={product.name} className="product-img" loading="lazy" />
           ) : (
             <div className="product-img-placeholder">
-              <span>🪔</span>
+              <span>P</span>
             </div>
           )}
           <div className="product-overlay">
             <Link
-              to={`/shop/${product.slug}`}
+              to={`/products/${product.slug}`}
               className="overlay-btn"
               id={`product-card-quickview-${product.id}`}
             >
@@ -60,7 +58,7 @@ const ProductCard = ({ product }) => {
 
       {/* Info */}
       <div className="product-info">
-        <Link to={`/shop/${product.slug}`} className="product-name-link">
+        <Link to={`/products/${product.slug}`} className="product-name-link">
           <h3 className="product-name">{product.name}</h3>
         </Link>
 

@@ -3,14 +3,18 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { FiShoppingCart, FiUser, FiSearch, FiMenu, FiX, FiLogOut, FiSettings, FiPackage } from 'react-icons/fi';
 import { useCartStore } from '../stores/cartStore';
 import { useAuthStore } from '../stores/authStore';
+import BrandLogo from './BrandLogo';
 import './Navbar.css';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isHidden, setIsHidden] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const lastScrollY = useRef(0);
   const userMenuRef = useRef(null);
   const searchRef = useRef(null);
   const navigate = useNavigate();
@@ -21,7 +25,26 @@ const Navbar = () => {
   const { user, profile, logout } = useAuthStore();
 
   useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 40);
+    const handleScroll = () => {
+      const currentY = window.scrollY;
+      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+
+      // Scrolled state
+      setIsScrolled(currentY > 40);
+
+      // Hide/reveal on scroll direction
+      if (currentY > 200 && currentY > lastScrollY.current + 5) {
+        setIsHidden(true);
+      } else if (currentY < lastScrollY.current - 5) {
+        setIsHidden(false);
+      }
+      lastScrollY.current = currentY;
+
+      // Scroll progress
+      const progress = maxScroll > 0 ? (currentY / maxScroll) * 100 : 0;
+      setScrollProgress(Math.min(progress, 100));
+    };
+
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -48,7 +71,7 @@ const Navbar = () => {
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      navigate(`/shop?search=${encodeURIComponent(searchQuery.trim())}`);
+      navigate(`/products?search=${encodeURIComponent(searchQuery.trim())}`);
       setSearchOpen(false);
       setSearchQuery('');
     }
@@ -56,22 +79,27 @@ const Navbar = () => {
 
   const navLinks = [
     { label: 'Home', to: '/' },
-    { label: 'Shop', to: '/shop' },
-    { label: 'About', to: '/#about' },
-    { label: 'Contact', to: '/#contact' },
+    { label: 'Products', to: '/products' },
+    { label: 'About', to: '/about' },
+    { label: 'Contact', to: '/contact' },
   ];
+
+  const darkHeroPaths = ['/', '/about', '/products', '/shop', '/contact'];
+  const overHero = darkHeroPaths.includes(location.pathname) && !isScrolled && !mobileOpen;
 
   return (
     <>
-      <nav className={`navbar ${isScrolled ? 'scrolled' : ''} ${mobileOpen ? 'mobile-open' : ''}`}>
+      <nav
+        className={`navbar ${isScrolled ? 'scrolled' : ''} ${isHidden ? 'hidden' : ''} ${mobileOpen ? 'mobile-open' : ''} ${overHero ? 'over-hero' : ''}`}
+      >
+        <div
+          className="scroll-progress-bar"
+          style={{ width: `${scrollProgress}%` }}
+        />
+
         <div className="navbar-inner container">
-          {/* Logo */}
           <Link to="/" className="navbar-logo">
-            <div className="logo-icon">🪔</div>
-            <div className="logo-text">
-              <span className="logo-name">Pavalam</span>
-              <span className="logo-tagline">Industries</span>
-            </div>
+            <BrandLogo height={46} />
           </Link>
 
           {/* Desktop Nav Links */}
@@ -80,7 +108,7 @@ const Navbar = () => {
               <li key={link.to}>
                 <Link
                   to={link.to}
-                  className={`nav-link ${location.pathname === link.to ? 'active' : ''}`}
+                  className={`nav-link ${location.pathname === link.to || (link.to === '/products' && location.pathname === '/shop') ? 'active' : ''}`}
                 >
                   {link.label}
                 </Link>
@@ -217,8 +245,7 @@ const Navbar = () => {
         )}
       </nav>
 
-      {/* Spacer to prevent content jump */}
-      <div className="navbar-spacer" />
+      {!darkHeroPaths.includes(location.pathname) && <div className="navbar-spacer" />}
     </>
   );
 };

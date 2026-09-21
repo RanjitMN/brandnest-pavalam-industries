@@ -7,6 +7,7 @@ import Footer from '../components/Footer';
 import CartDrawer from '../components/CartDrawer';
 import { supabase } from '../lib/supabase';
 import { useCartStore } from '../stores/cartStore';
+import { isSupabaseConfigured, normalizeProduct } from '../lib/utils';
 import './ProductDetail.css';
 
 const demoProducts = {
@@ -59,7 +60,9 @@ const benefits = [
 export default function ProductDetail() {
   const { slug } = useParams();
   const navigate = useNavigate();
-  const [product, setProduct] = useState(demoProducts[slug] || null);
+  const [product, setProduct] = useState(
+    isSupabaseConfigured ? null : (demoProducts[slug] || null)
+  );
   const [selectedVariant, setSelectedVariant] = useState(
     demoProducts[slug]?.has_variants && demoProducts[slug]?.variants?.length > 0 
       ? demoProducts[slug].variants[0] 
@@ -68,6 +71,7 @@ export default function ProductDetail() {
   const [quantity, setQuantity] = useState(1);
   const [activeImage, setActiveImage] = useState(0);
   const [activeTab, setActiveTab] = useState('description');
+  const [loading, setLoading] = useState(isSupabaseConfigured);
   const addItem = useCartStore(s => s.addItem);
   const openCart = useCartStore(s => s.openCart);
 
@@ -80,19 +84,34 @@ export default function ProductDetail() {
           .eq('slug', slug)
           .single();
         if (!error && data) {
-          setProduct(data);
-          if (data.has_variants && data.variants?.length > 0) {
-            setSelectedVariant(data.variants[0]);
+          const normalized = normalizeProduct(data);
+          setProduct(normalized);
+          if (normalized.has_variants && normalized.variants?.length > 0) {
+            setSelectedVariant(normalized.variants[0]);
           } else {
             setSelectedVariant(null);
           }
+        } else if (!isSupabaseConfigured && demoProducts[slug]) {
+          setProduct(demoProducts[slug]);
         }
-      } catch { /* use demo */ }
+      } catch { /* keep current */ }
+      finally { setLoading(false); }
     };
+    setLoading(isSupabaseConfigured);
     fetchProduct();
     setQuantity(1);
     setActiveImage(0);
   }, [slug]);
+
+  if (loading) {
+    return (
+      <>
+        <Navbar />
+        <div className="not-found-page"><div className="spinner" style={{ width: 40, height: 40 }} /></div>
+        <Footer />
+      </>
+    );
+  }
 
   if (!product) {
     return (
@@ -100,7 +119,7 @@ export default function ProductDetail() {
         <Navbar />
         <div className="not-found-page">
           <h2>Product not found</h2>
-          <Link to="/shop" className="btn btn-primary">Back to Shop</Link>
+          <Link to="/products" className="btn btn-primary">Back to Shop</Link>
         </div>
         <Footer />
       </>
@@ -128,7 +147,7 @@ export default function ProductDetail() {
           {/* Breadcrumb */}
           <nav className="breadcrumb" style={{ padding: '1.5rem 0 0' }}>
             <Link to="/">Home</Link> <span>/</span>
-            <Link to="/shop">Shop</Link> <span>/</span>
+            <Link to="/products">Shop</Link> <span>/</span>
             <span>{product.name}</span>
           </nav>
 

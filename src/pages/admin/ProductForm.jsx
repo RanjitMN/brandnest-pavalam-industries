@@ -70,21 +70,29 @@ export default function ProductForm() {
     setSaving(true);
     try {
       const payload = {
-        ...form,
+        name: form.name,
+        slug: form.slug || slugify(form.name),
+        short_description: form.short_description || null,
+        description: form.description || null,
         price: parseFloat(form.price),
         compare_price: form.compare_price ? parseFloat(form.compare_price) : null,
-        stock: parseInt(form.stock),
-        weight_grams: form.weight_grams ? parseInt(form.weight_grams) : null,
-        slug: form.slug || slugify(form.name),
+        stock: parseInt(form.stock, 10),
+        weight_grams: form.weight_grams ? parseInt(form.weight_grams, 10) : null,
+        sku: form.sku || null,
+        category_id: form.category_id || null,
+        images: form.images || [],
+        is_active: form.is_active,
+        is_featured: form.is_featured,
         has_variants: variants.length > 0,
       };
-      delete payload.variants;
 
       let productId = id;
       if (isEdit) {
-        await supabase.from('products').update({ ...payload, updated_at: new Date().toISOString() }).eq('id', id);
+        const { error } = await supabase.from('products').update(payload).eq('id', id);
+        if (error) throw error;
       } else {
-        const { data } = await supabase.from('products').insert(payload).select().single();
+        const { data, error } = await supabase.from('products').insert(payload).select().single();
+        if (error) throw error;
         productId = data?.id;
       }
 

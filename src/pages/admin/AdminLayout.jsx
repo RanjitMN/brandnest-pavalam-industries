@@ -5,6 +5,7 @@ import {
   FiSettings, FiMenu, FiX, FiLogOut, FiChevronRight, FiLayers
 } from 'react-icons/fi';
 import { useAuthStore } from '../../stores/authStore';
+import BrandLogo from '../../components/BrandLogo';
 import './AdminLayout.css';
 
 const navItems = [
@@ -43,11 +44,8 @@ export default function AdminLayout() {
         {/* Logo */}
         <div className="admin-sidebar-logo">
           <Link to="/" className="admin-logo-link">
-            <span>🪔</span>
-            <div>
-              <span className="admin-logo-name">Pavalam</span>
-              <span className="admin-logo-badge">Admin Panel</span>
-            </div>
+            <BrandLogo height={40} />
+            <span className="admin-logo-badge">Admin</span>
           </Link>
           <button className="sidebar-close-btn" onClick={() => setSidebarOpen(false)}>
             <FiX size={18} />
@@ -104,7 +102,7 @@ export default function AdminLayout() {
             {navItems.find(i => isActive(i))?.label || 'Dashboard'}
           </div>
           <div className="topbar-actions">
-            <Link to="/shop" className="btn btn-outline btn-sm" id="admin-topbar-store-btn">
+            <Link to="/products" className="btn btn-outline btn-sm" id="admin-topbar-store-btn">
               View Store
             </Link>
           </div>

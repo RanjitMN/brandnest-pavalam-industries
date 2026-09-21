@@ -6,6 +6,8 @@ import { useAuthStore } from './stores/authStore';
 // Pages
 import Home from './pages/Home';
 import Shop from './pages/Shop';
+import About from './pages/About';
+import Contact from './pages/Contact';
 import ProductDetail from './pages/ProductDetail';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
@@ -20,6 +22,7 @@ import Dashboard from './pages/admin/Dashboard';
 import Products from './pages/admin/Products';
 import ProductForm from './pages/admin/ProductForm';
 import Orders from './pages/admin/Orders';
+import OfflineOrder from './pages/admin/OfflineOrder';
 import OrderDetail from './pages/admin/OrderDetail';
 import Customers from './pages/admin/Customers';
 import Categories from './pages/admin/Categories';
@@ -52,7 +55,7 @@ function AppContent() {
         toastOptions={{
           duration: 3000,
           style: {
-            fontFamily: 'Outfit, sans-serif',
+            fontFamily: 'Manrope, sans-serif',
             borderRadius: '12px',
             border: '1px solid rgba(155,28,34,0.12)',
             boxShadow: '0 8px 24px rgba(43,24,19,0.12)',
@@ -64,7 +67,11 @@ function AppContent() {
       <Routes>
         {/* Storefront */}
         <Route path="/" element={<Home />} />
+        <Route path="/products" element={<Shop />} />
         <Route path="/shop" element={<Shop />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/products/:slug" element={<ProductDetail />} />
         <Route path="/shop/:slug" element={<ProductDetail />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
@@ -80,6 +87,7 @@ function AppContent() {
           <Route path="products/new" element={<ProductForm />} />
           <Route path="products/edit/:id" element={<ProductForm />} />
           <Route path="orders" element={<Orders />} />
+          <Route path="orders/offline" element={<OfflineOrder />} />
           <Route path="orders/:id" element={<OrderDetail />} />
           <Route path="customers" element={<Customers />} />
           <Route path="categories" element={<Categories />} />

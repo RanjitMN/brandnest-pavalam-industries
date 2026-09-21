@@ -1,65 +1,75 @@
-/* MarqueeStrip */
 .marquee-strip {
-  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
-  padding: 1rem 0;
-  overflow: hidden;
   position: relative;
+  overflow: hidden;
+  background: linear-gradient(90deg, #C41472, #EC1C8A, #FFD400, #EC1C8A, #C41472);
+  padding: 0.95rem 0;
+  border-top: 3px solid #E0C87A;
+  border-bottom: 3px solid #E0C87A;
 }
 
-.marquee-strip::before,
-.marquee-strip::after {
-  content: '';
+.marquee-fade {
   position: absolute;
   top: 0;
   bottom: 0;
-  width: 80px;
+  width: 100px;
   z-index: 2;
   pointer-events: none;
 }
-.marquee-strip::before {
+
+.marquee-fade-left {
   left: 0;
-  background: linear-gradient(90deg, var(--color-primary), transparent);
+  background: linear-gradient(90deg, var(--color-primary-dark), transparent);
 }
-.marquee-strip::after {
+
+.marquee-fade-right {
   right: 0;
-  background: linear-gradient(-90deg, var(--color-primary-dark), transparent);
+  background: linear-gradient(90deg, transparent, var(--color-primary-dark));
 }
 
 .marquee-track {
   display: flex;
   align-items: center;
-  gap: 0;
-  animation: marquee 30s linear infinite;
   width: max-content;
+  animation: marqueeScroll 40s linear infinite;
 }
 
-.marquee-track:hover { animation-play-state: paused; }
+.marquee-track.paused {
+  animation-play-state: paused;
+}
 
-@keyframes marquee {
-  from { transform: translateX(0); }
-  to { transform: translateX(-33.333%); }
+@keyframes marqueeScroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-33.333%); }
 }
 
 .marquee-item {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0 1.5rem;
+  gap: 1rem;
   white-space: nowrap;
+  padding: 0 1.25rem;
 }
-
-.marquee-icon { font-size: 1rem; }
 
 .marquee-text {
   font-size: 0.8rem;
   font-weight: 600;
-  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.92);
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.9);
 }
 
 .marquee-dot {
   color: var(--color-secondary);
-  font-size: 1.2rem;
-  margin-left: 0.5rem;
+  font-size: 0.55rem;
+  opacity: 0.85;
+}
+
+@media (max-width: 640px) {
+  .marquee-strip { padding: 0.7rem 0; }
+  .marquee-text { font-size: 0.72rem; }
+  .marquee-fade { width: 48px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track { animation: none; }
 }

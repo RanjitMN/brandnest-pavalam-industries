@@ -41,18 +41,13 @@ export default function Dashboard() {
     fetch();
   }, []);
 
-  // Demo data if supabase not connected
-  const displayOrders = recentOrders.length > 0 ? recentOrders : [
-    { id: '1', order_number: 'PAV-20260901-1234', customer_name: 'Priya S.', total: 299, status: 'delivered', created_at: new Date().toISOString() },
-    { id: '2', order_number: 'PAV-20260902-5678', customer_name: 'Ramesh K.', total: 199, status: 'shipped', created_at: new Date().toISOString() },
-    { id: '3', order_number: 'PAV-20260903-9012', customer_name: 'Lakshmi D.', total: 349, status: 'pending', created_at: new Date().toISOString() },
-  ];
+  const displayOrders = recentOrders;
 
   const statData = [
     { label: 'Total Revenue', value: `₹${stats.revenue.toFixed(0)}`, icon: <FiTrendingUp size={20} />, color: 'var(--color-primary)', change: '+12% this month' },
-    { label: 'Total Orders', value: stats.orders || '24', icon: <FiShoppingBag size={20} />, color: 'var(--color-secondary)', change: '+5 today' },
-    { label: 'Products', value: stats.products || '4', icon: <FiPackage size={20} />, color: '#1565C0', change: 'In catalog' },
-    { label: 'Customers', value: stats.customers || '128', icon: <FiUsers size={20} />, color: 'var(--color-success)', change: '+8 this week' },
+    { label: 'Total Orders', value: stats.orders, icon: <FiShoppingBag size={20} />, color: 'var(--color-secondary)', change: 'All channels' },
+    { label: 'Products', value: stats.products, icon: <FiPackage size={20} />, color: '#1565C0', change: 'Active in catalog' },
+    { label: 'Customers', value: stats.customers, icon: <FiUsers size={20} />, color: 'var(--color-success)', change: 'Registered accounts' },
   ];
 
   return (
@@ -97,11 +92,13 @@ export default function Dashboard() {
                 </tr>
               </thead>
               <tbody>
-                {displayOrders.map(order => (
+                  {displayOrders.length === 0 ? (
+                    <tr><td colSpan={4} className="admin-empty">No orders yet</td></tr>
+                  ) : displayOrders.map(order => (
                   <tr key={order.id}>
                     <td><Link to={`/admin/orders/${order.id}`} style={{ color: 'var(--color-primary)', fontWeight: 600, textDecoration: 'none' }}>{order.order_number}</Link></td>
                     <td>{order.customer_name || 'Customer'}</td>
-                    <td style={{ fontWeight: 700 }}>₹{order.total?.toFixed(2)}</td>
+                    <td style={{ fontWeight: 700 }}>₹{Number(order.total || 0).toFixed(2)}</td>
                     <td><span className={`badge ${statusColors[order.status] || 'badge-primary'}`}>{order.status}</span></td>
                   </tr>
                 ))}

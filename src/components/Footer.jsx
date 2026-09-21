@@ -1,24 +1,54 @@
+import { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { FiMail, FiPhone, FiMapPin, FiInstagram, FiFacebook } from 'react-icons/fi';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import BrandLogo from './BrandLogo';
 import './Footer.css';
+
+gsap.registerPlugin(ScrollTrigger);
 
 const Footer = () => {
   const year = new Date().getFullYear();
+  const footerRef = useRef(null);
+
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      gsap.fromTo('.footer-brand, .footer-col',
+        { y: 30, opacity: 0 },
+        {
+          y: 0, opacity: 1,
+          duration: 0.7,
+          stagger: 0.1,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: footerRef.current,
+            start: 'top 85%',
+            toggleActions: 'play none none none',
+          }
+        }
+      );
+    }, footerRef);
+    return () => ctx.revert();
+  }, []);
 
   return (
-    <footer className="footer" id="contact">
+    <footer className="footer" id="contact" ref={footerRef}>
+      {/* Wave separator */}
+      <div className="footer-wave">
+        <svg viewBox="0 0 1440 60" preserveAspectRatio="none">
+          <path d="M0,30 C480,60 960,0 1440,30 L1440,0 L0,0 Z" fill="var(--color-bg)" />
+        </svg>
+      </div>
+
       <div className="footer-main">
         <div className="container">
           <div className="footer-grid">
             {/* Brand */}
             <div className="footer-brand">
-              <div className="footer-logo">
-                <span className="footer-logo-icon">🪔</span>
-                <div>
-                  <span className="footer-logo-name">Pavalam</span>
-                  <span className="footer-logo-sub">Industries</span>
-                </div>
-              </div>
+              <Link to="/" className="footer-logo">
+                <BrandLogo height={56} />
+              </Link>
               <p className="footer-brand-desc">
                 Crafting India's finest cup sambrani since 1995. Pure natural resins, divine fragrances, and the essence of Tamil Nadu's spiritual heritage in every cup.
               </p>
@@ -40,9 +70,9 @@ const Footer = () => {
               <h4 className="footer-heading">Quick Links</h4>
               <ul className="footer-links">
                 <li><Link to="/">Home</Link></li>
-                <li><Link to="/shop">Shop</Link></li>
-                <li><Link to="/#about">About Us</Link></li>
-                <li><Link to="/#contact">Contact</Link></li>
+                <li><Link to="/products">Products</Link></li>
+                <li><Link to="/about">About Us</Link></li>
+                <li><Link to="/contact">Contact</Link></li>
                 <li><Link to="/login">My Account</Link></li>
               </ul>
             </div>
@@ -51,10 +81,10 @@ const Footer = () => {
             <div className="footer-col">
               <h4 className="footer-heading">Categories</h4>
               <ul className="footer-links">
-                <li><Link to="/shop?category=cup-sambrani">Cup Sambrani</Link></li>
-                <li><Link to="/shop?category=sambrani-powder">Sambrani Powder</Link></li>
-                <li><Link to="/shop?category=dhoop-sticks">Dhoop Sticks</Link></li>
-                <li><Link to="/shop?category=combo-packs">Combo Packs</Link></li>
+                <li><Link to="/products?category=cup-sambrani">Cup Sambrani</Link></li>
+                <li><Link to="/products?category=sambrani-powder">Sambrani Powder</Link></li>
+                <li><Link to="/products?category=dhoop-sticks">Dhoop Sticks</Link></li>
+                <li><Link to="/products?category=combo-packs">Combo Packs</Link></li>
               </ul>
             </div>
 

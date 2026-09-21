@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { FiSearch, FiEye } from 'react-icons/fi';
+import { FiSearch, FiEye, FiPlus } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { supabase } from '../../lib/supabase';
+import { formatInr, isSupabaseConfigured } from '../../lib/utils';
 import './AdminLayout.css';
 
 const statusOptions = ['pending', 'confirmed', 'packed', 'shipped', 'delivered', 'cancelled'];
@@ -13,28 +14,42 @@ const statusColors = {
 };
 
 const demoOrders = [
-  { id: '1', order_number: 'PAV-20260901-1234', customer_name: 'Priya Subramaniam', customer_phone: '9876543210', total: 299, status: 'delivered', payment_method: 'cod', created_at: new Date(Date.now() - 86400000).toISOString() },
-  { id: '2', order_number: 'PAV-20260902-5678', customer_name: 'Ramesh Kumar', customer_phone: '8765432109', total: 199, status: 'shipped', payment_method: 'cod', created_at: new Date(Date.now() - 3600000).toISOString() },
-  { id: '3', order_number: 'PAV-20260903-9012', customer_name: 'Lakshmi Devi', customer_phone: '7654321098', total: 349, status: 'pending', payment_method: 'cod', created_at: new Date().toISOString() },
+  { id: '1', order_number: 'PAV-20260901-1234', customer_name: 'Priya Subramaniam', customer_phone: '9876543210', total: 299, status: 'delivered', payment_method: 'cod', channel: 'online', created_at: new Date(Date.now() - 86400000).toISOString() },
+  { id: '2', order_number: 'OFF-20260902-5678', customer_name: 'Walk-in customer', customer_phone: '8765432109', total: 199, status: 'delivered', payment_method: 'cash', channel: 'offline', created_at: new Date(Date.now() - 3600000).toISOString() },
 ];
 
 export default function Orders() {
   const [orders, setOrders] = useState([]);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [channelFilter, setChannelFilter] = useState('all');
   const [loading, setLoading] = useState(true);
 
   const fetchOrders = async () => {
     try {
       let query = supabase.from('orders').select('*').order('created_at', { ascending: false });
       if (statusFilter !== 'all') query = query.eq('status', statusFilter);
+      if (channelFilter !== 'all') query = query.eq('channel', channelFilter);
       const { data, error } = await query;
-      if (!error && data?.length > 0) setOrders(data);
-      else setOrders(demoOrders);
-    } catch { setOrders(demoOrders); } finally { setLoading(false); }
+      if (error) {
+        if (String(error.message || '').includes('channel')) {
+          let fallback = supabase.from('orders').select('*').order('created_at', { ascending: false });
+          if (statusFilter !== 'all') fallback = fallback.eq('status', statusFilter);
+          const res = await fallback;
+          setOrders(res.data || []);
+          return;
+        }
+        throw error;
+      }
+      setOrders(data || []);
+    } catch {
+      setOrders(isSupabaseConfigured ? [] : demoOrders);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  useEffect(() => { fetchOrders(); }, [statusFilter]);
+  useEffect(() => { fetchOrders(); }, [statusFilter, channelFilter]);
 
   const handleStatusChange = async (orderId, newStatus) => {
     try {
@@ -57,6 +72,9 @@ export default function Orders() {
           <h1 className="admin-page-title">Orders</h1>
           <p className="admin-page-subtitle">{orders.length} total orders</p>
         </div>
+        <Link to="/admin/orders/offline" className="btn btn-primary" id="admin-new-offline-order">
+          <FiPlus size={16} /> New offline order
+        </Link>
       </div>
 
       {/* Toolbar */}
@@ -66,6 +84,15 @@ export default function Orders() {
           <input className="admin-search-input" placeholder="Search orders..." value={search} onChange={e => setSearch(e.target.value)} id="admin-orders-search" />
         </div>
         <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
+          {['all', 'online', 'offline'].map(s => (
+            <button
+              key={s}
+              className={`btn btn-sm ${channelFilter === s ? 'btn-secondary' : 'btn-ghost'}`}
+              onClick={() => setChannelFilter(s)}
+            >
+              {s === 'all' ? 'All channels' : s.charAt(0).toUpperCase() + s.slice(1)}
+            </button>
+          ))}
           {['all', ...statusOptions].map(s => (
             <button
               key={s}
@@ -108,9 +135,10 @@ export default function Orders() {
                   <td style={{ color: 'var(--color-text-muted)', fontSize: '0.8rem', whiteSpace: 'nowrap' }}>
                     {new Date(order.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
                   </td>
-                  <td style={{ fontWeight: 700 }}>₹{order.total?.toFixed(2)}</td>
+                  <td style={{ fontWeight: 700 }}>₹{formatInr(order.total)}</td>
                   <td>
-                    <span className="badge badge-info">💵 COD</span>
+                    <span className="badge badge-info">{(order.payment_method || 'cod').toUpperCase()}</span>
+                    {order.channel === 'offline' && <span className="badge badge-secondary" style={{ marginLeft: 6 }}>Offline</span>}
                   </td>
                   <td>
                     <select

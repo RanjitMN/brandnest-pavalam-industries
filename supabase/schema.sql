@@ -96,8 +96,9 @@ CREATE TABLE IF NOT EXISTS orders (
   gst_rate DECIMAL(5, 2) NOT NULL DEFAULT 0,
   total DECIMAL(10, 2) NOT NULL,
   status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'confirmed', 'packed', 'shipped', 'delivered', 'cancelled')),
-  payment_method TEXT NOT NULL DEFAULT 'cod' CHECK (payment_method IN ('cod')),
+  payment_method TEXT NOT NULL DEFAULT 'cod' CHECK (payment_method IN ('cod', 'cash', 'upi', 'card', 'bank_transfer')),
   payment_status TEXT NOT NULL DEFAULT 'pending' CHECK (payment_status IN ('pending', 'paid', 'failed', 'refunded')),
+  channel TEXT NOT NULL DEFAULT 'online' CHECK (channel IN ('online', 'offline')),
   shipping_address JSONB NOT NULL,
   coupon_code TEXT,
   notes TEXT,
@@ -407,7 +408,7 @@ BEGIN
     NEW.email,
     COALESCE(NEW.raw_user_meta_data->>'full_name', ''),
     COALESCE(NEW.raw_user_meta_data->>'phone', ''),
-    COALESCE(NEW.raw_user_meta_data->>'role', 'customer')
+    'customer'
   )
   ON CONFLICT (id) DO UPDATE SET
     email = EXCLUDED.email,
@@ -421,6 +422,18 @@ DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+
+-- Coupon usage from checkout (customers cannot update coupons directly)
+CREATE OR REPLACE FUNCTION public.record_coupon_use(p_code TEXT)
+RETURNS VOID AS $$
+BEGIN
+  UPDATE public.coupons
+  SET uses_count = COALESCE(uses_count, 0) + 1
+  WHERE code = p_code AND is_active = true;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+
+GRANT EXECUTE ON FUNCTION public.record_coupon_use(TEXT) TO authenticated;
 
 -- ============================================================
 -- STORAGE BUCKET for product images

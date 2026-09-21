@@ -1,0 +1,232 @@
+.ritual-altar {
+  position: relative;
+  width: 100%;
+  height: clamp(340px, 58vw, 580px);
+  display: grid;
+  place-items: center;
+}
+
+.ritual-mandala {
+  position: absolute;
+  width: min(92%, 540px);
+  height: auto;
+  color: #C4A35A;
+  opacity: 0.55;
+  animation: mandalaSpin 80s linear infinite;
+  pointer-events: none;
+  filter: drop-shadow(0 0 24px rgba(196, 163, 90, 0.25));
+}
+
+.ritual-glow {
+  position: absolute;
+  width: 58%;
+  height: 58%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 140, 40, 0.28) 0%, rgba(196, 163, 90, 0.18) 38%, transparent 70%);
+  animation: emberPulse 4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.ritual-smoke {
+  position: absolute;
+  bottom: 28%;
+  left: 50%;
+  width: 70px;
+  height: 220px;
+  pointer-events: none;
+  background: linear-gradient(to top, rgba(245, 230, 210, 0.55), rgba(245, 230, 210, 0));
+  filter: blur(14px);
+  border-radius: 50%;
+  transform-origin: bottom center;
+  opacity: 0.7;
+}
+
+.ritual-smoke-a {
+  margin-left: -28px;
+  animation: smokeRise 7s ease-in-out infinite;
+}
+
+.ritual-smoke-b {
+  margin-left: 6px;
+  width: 90px;
+  animation: smokeRise 9s ease-in-out 1.4s infinite;
+  opacity: 0.45;
+}
+
+.ritual-smoke-c {
+  margin-left: -8px;
+  width: 50px;
+  height: 180px;
+  animation: smokeRise 6s ease-in-out 0.6s infinite;
+}
+
+.ritual-petal {
+  position: absolute;
+  top: -8%;
+  width: 10px;
+  height: 16px;
+  background: radial-gradient(circle at 30% 30%, #f3c4c8, #c0394a 70%);
+  border-radius: 80% 0 80% 0;
+  opacity: 0.75;
+  animation: petalFall linear infinite;
+  pointer-events: none;
+  z-index: 4;
+}
+
+.ritual-frame {
+  position: absolute;
+  margin: 0;
+  overflow: hidden;
+  box-shadow:
+    0 0 0 3px #C4A35A,
+    0 0 0 7px #C41472,
+    0 0 0 9px #E0C87A,
+    0 28px 50px rgba(0, 0, 0, 0.45);
+}
+
+.ritual-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.ritual-frame-main {
+  width: min(68%, 340px);
+  height: min(72%, 400px);
+  z-index: 2;
+  animation: frameFloat 6s ease-in-out infinite;
+}
+
+.ritual-frame-main figcaption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 0.7rem 0.8rem;
+  background: linear-gradient(transparent, rgba(20, 10, 8, 0.85));
+  color: #F8F4EE;
+  font-family: var(--font-serif);
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+.ritual-ember {
+  position: absolute;
+  bottom: 18%;
+  left: 50%;
+  width: 90px;
+  height: 90px;
+  margin-left: -45px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 90, 20, 0.7), transparent 70%);
+  filter: blur(12px);
+  animation: emberPulse 2.2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.ritual-frame-a {
+  width: 128px;
+  height: 160px;
+  left: 2%;
+  top: 12%;
+  z-index: 3;
+  transform: rotate(-9deg);
+  animation: frameFloat 7s ease-in-out 0.8s infinite;
+}
+
+.ritual-frame-b {
+  width: 118px;
+  height: 148px;
+  right: 3%;
+  bottom: 10%;
+  z-index: 3;
+  transform: rotate(8deg);
+  animation: frameFloat 8s ease-in-out 1.2s infinite;
+}
+
+.ritual-chip {
+  position: absolute;
+  z-index: 5;
+  background: linear-gradient(145deg, #EC1C8A, #C41472);
+  color: #F8F4EE;
+  padding: 0.65rem 0.9rem;
+  border: 1px solid #C4A35A;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
+  min-width: 140px;
+}
+
+.ritual-chip strong {
+  display: block;
+  font-family: var(--font-serif);
+  font-size: 1.05rem;
+}
+
+.ritual-chip span {
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+  color: #E0C87A;
+}
+
+.ritual-chip-1 {
+  top: 8%;
+  right: 6%;
+  animation: frameFloat 5s ease-in-out infinite;
+}
+
+.ritual-chip-2 {
+  bottom: 6%;
+  left: 4%;
+  animation: frameFloat 5.5s ease-in-out 1s infinite;
+}
+
+@keyframes mandalaSpin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes smokeRise {
+  0% { transform: translate(-50%, 20px) scaleX(0.7); opacity: 0; }
+  20% { opacity: 0.55; }
+  100% { transform: translate(-50%, -160px) scaleX(1.4); opacity: 0; }
+}
+
+@keyframes emberPulse {
+  0%, 100% { opacity: 0.55; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.12); }
+}
+
+@keyframes frameFloat {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 0 -10px; }
+}
+
+@keyframes petalFall {
+  0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+  12% { opacity: 0.85; }
+  100% { transform: translateY(520px) rotate(220deg); opacity: 0; }
+}
+
+@media (max-width: 720px) {
+  .ritual-frame-a,
+  .ritual-frame-b { display: none; }
+  .ritual-chip-1 { right: 2%; top: 4%; }
+  .ritual-chip-2 { left: 2%; }
+  .ritual-frame-main {
+    width: min(78%, 280px);
+    height: min(78%, 340px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ritual-mandala,
+  .ritual-smoke,
+  .ritual-petal,
+  .ritual-frame-main,
+  .ritual-frame-a,
+  .ritual-frame-b,
+  .ritual-chip,
+  .ritual-glow,
+  .ritual-ember {
+    animation: none;
+  }
+}

@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
-import { useSearchParams, Link } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { FiFilter, FiX, FiChevronDown, FiSearch } from 'react-icons/fi';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import CartDrawer from '../components/CartDrawer';
 import ProductCard from '../components/ProductCard';
+import PageHero from '../components/PageHero';
 import { supabase } from '../lib/supabase';
+import { isSupabaseConfigured, normalizeProduct } from '../lib/utils';
 import './Shop.css';
 
 const demoProducts = [
@@ -32,7 +34,7 @@ const sortOptions = [
 
 export default function Shop() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [products, setProducts] = useState(demoProducts);
+  const [products, setProducts] = useState(isSupabaseConfigured ? [] : demoProducts);
   const [loading, setLoading] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
@@ -57,16 +59,15 @@ export default function Shop() {
         if (searchQuery) query = query.ilike('name', `%${searchQuery}%`);
 
         const { data, error } = await query;
-        if (!error && data?.length > 0) {
-          let sorted = [...data];
-          if (sortBy === 'price-asc') sorted.sort((a, b) => a.price - b.price);
-          if (sortBy === 'price-desc') sorted.sort((a, b) => b.price - a.price);
-          if (sortBy === 'name-asc') sorted.sort((a, b) => a.name.localeCompare(b.name));
-          if (sortBy === 'featured') sorted.sort((a, b) => (b.is_featured ? 1 : 0) - (a.is_featured ? 1 : 0));
-          setProducts(sorted.filter(p => p.price <= priceMax));
-        }
+        if (error) throw error;
+        let sorted = [...(data || [])].map(normalizeProduct);
+        if (sortBy === 'price-asc') sorted.sort((a, b) => a.price - b.price);
+        if (sortBy === 'price-desc') sorted.sort((a, b) => b.price - a.price);
+        if (sortBy === 'name-asc') sorted.sort((a, b) => a.name.localeCompare(b.name));
+        if (sortBy === 'featured') sorted.sort((a, b) => (b.is_featured ? 1 : 0) - (a.is_featured ? 1 : 0));
+        setProducts(sorted.filter(p => p.price <= priceMax));
       } catch {
-        // Keep demo data
+        if (!isSupabaseConfigured) setProducts(demoProducts);
       } finally {
         setLoading(false);
       }
@@ -88,25 +89,36 @@ export default function Shop() {
     return true;
   });
 
-  const displayProducts = products.length ? products : filteredDemo;
+  const displayProducts = isSupabaseConfigured ? products : (products.length ? products : filteredDemo);
 
   return (
     <>
       <CartDrawer />
       <Navbar />
       <main className="shop-page">
-        {/* Header */}
-        <div className="shop-header">
-          <div className="container">
-            <h1 className="shop-title">Our Products</h1>
-            <p className="shop-subtitle">Discover our complete range of sacred sambrani</p>
-            <nav className="breadcrumb">
-              <Link to="/">Home</Link> <span>/</span> <span>Shop</span>
-            </nav>
-          </div>
-        </div>
+        <PageHero
+          eyebrow="The collection"
+          title="Sacred fragrance, made to light."
+          subtitle="Cup sambrani, powder, dhoop, and family packs — natural resins for daily pooja."
+          crumbs={[{ label: 'Home', to: '/' }, { label: 'Products' }]}
+        />
 
         <div className="container">
+          <div className="shop-chips" role="tablist" aria-label="Product categories">
+            {categories.map((cat) => (
+              <button
+                key={cat.slug}
+                type="button"
+                role="tab"
+                className={`shop-chip ${selectedCategory === cat.slug ? 'is-active' : ''}`}
+                aria-selected={selectedCategory === cat.slug}
+                onClick={() => handleCategoryChange(cat.slug)}
+              >
+                {cat.name}
+              </button>
+            ))}
+          </div>
+
           <div className="shop-layout">
             {/* Sidebar Filter */}
             <aside className={`shop-sidebar ${filterOpen ? 'open' : ''}`}>

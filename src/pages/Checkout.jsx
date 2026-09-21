@@ -7,14 +7,11 @@ import Footer from '../components/Footer';
 import { useCartStore } from '../stores/cartStore';
 import { useAuthStore } from '../stores/authStore';
 import { supabase } from '../lib/supabase';
+import { insertOrderWithItems, recordCouponUse, generateOrderNumber } from '../lib/orders';
+import { isSupabaseConfigured } from '../lib/utils';
 import './Checkout.css';
 
 const defaultSettings = { delivery_charge: '60', free_delivery_above: '500', gst_rate: '5' };
-
-const generateOrderNumber = () => {
-  const d = new Date();
-  return `PAV-${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}-${Math.floor(Math.random()*9000)+1000}`;
-};
 
 export default function Checkout() {
   const navigate = useNavigate();
@@ -67,12 +64,17 @@ export default function Checkout() {
 
   const handlePlaceOrder = async () => {
     if (!validate()) { toast.error('Please fix the errors below'); return; }
+    if (!items.length) { toast.error('Your cart is empty'); navigate('/products'); return; }
+    if (!isSupabaseConfigured) {
+      toast.error('Online checkout is not connected yet. Add Supabase keys to .env');
+      return;
+    }
     setPlacing(true);
     try {
-      const orderNumber = generateOrderNumber();
+      const orderNumber = generateOrderNumber('PAV');
       const orderItems = items.map(item => ({
-        product_id: item.product.id,
-        variant_id: item.variant?.id || null,
+        product_id: item.product.id?.length === 36 ? item.product.id : null,
+        variant_id: item.variant?.id?.length === 36 ? item.variant.id : null,
         product_name: item.product.name,
         variant_name: item.variant?.name || null,
         price: item.price,
@@ -81,7 +83,7 @@ export default function Checkout() {
         image_url: item.image,
       }));
 
-      const { data: order, error } = await supabase.from('orders').insert({
+      const order = await insertOrderWithItems({
         order_number: orderNumber,
         user_id: user.id,
         customer_email: form.email,
@@ -97,6 +99,7 @@ export default function Checkout() {
         status: 'pending',
         payment_method: 'cod',
         payment_status: 'pending',
+        channel: 'online',
         shipping_address: {
           full_name: form.full_name,
           phone: form.phone,
@@ -107,20 +110,15 @@ export default function Checkout() {
           pincode: form.pincode,
         },
         coupon_code: coupon?.code || null,
-      }).select().single();
+      }, orderItems);
 
-      if (error) throw error;
-
-      // Update coupon usage
-      if (coupon) {
-        await supabase.from('coupons').update({ uses_count: (coupon.uses_count || 0) + 1 }).eq('id', coupon.id);
-      }
+      if (coupon?.code) await recordCouponUse(coupon.code);
 
       clearCart();
       navigate(`/order-confirmation/${order.id}`);
     } catch (err) {
       console.error(err);
-      toast.error('Failed to place order. Please try again.');
+      toast.error(err.message || 'Failed to place order. Please try again.');
     } finally {
       setPlacing(false);
     }

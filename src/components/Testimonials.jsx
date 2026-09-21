@@ -1,4 +1,9 @@
+import { useEffect, useRef, useState } from 'react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import './Testimonials.css';
+
+gsap.registerPlugin(ScrollTrigger);
 
 const reviews = [
   {
@@ -51,11 +56,92 @@ const reviews = [
   },
 ];
 
+const AnimatedCounter = ({ target, suffix = '' }) => {
+  const [count, setCount] = useState(0);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          let start = 0;
+          const end = parseInt(target, 10);
+          const duration = 2000;
+          const step = (end / duration) * 16;
+          const counter = setInterval(() => {
+            start += step;
+            if (start >= end) {
+              setCount(end);
+              clearInterval(counter);
+            } else {
+              setCount(Math.floor(start));
+            }
+          }, 16);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.5 }
+    );
+    if (el) observer.observe(el);
+    return () => observer.disconnect();
+  }, [target]);
+
+  return <span ref={ref}>{count.toLocaleString()}{suffix}</span>;
+};
+
 const Testimonials = () => {
+  const sectionRef = useRef(null);
+
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      gsap.fromTo('.test-header',
+        { y: 40, opacity: 0 },
+        {
+          y: 0, opacity: 1, duration: 0.8, ease: 'power3.out',
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: 'top 75%',
+            toggleActions: 'play none none reverse',
+          }
+        }
+      );
+
+      gsap.fromTo('.testimonial-card',
+        { y: 40, opacity: 0, scale: 0.97 },
+        {
+          y: 0, opacity: 1, scale: 1,
+          duration: 0.7,
+          stagger: 0.1,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: '.testimonials-scroll',
+            start: 'top 70%',
+            toggleActions: 'play none none reverse',
+          }
+        }
+      );
+
+      gsap.fromTo('.testimonials-summary',
+        { y: 30, opacity: 0 },
+        {
+          y: 0, opacity: 1, duration: 0.8, ease: 'power3.out',
+          scrollTrigger: {
+            trigger: '.testimonials-summary',
+            start: 'top 85%',
+            toggleActions: 'play none none reverse',
+          }
+        }
+      );
+    }, sectionRef);
+
+    return () => ctx.revert();
+  }, []);
+
   return (
-    <section className="testimonials section" style={{ background: 'var(--color-bg)' }}>
+    <section className="testimonials section" ref={sectionRef}>
       <div className="container">
-        <div className="text-center" style={{ marginBottom: '3rem' }}>
+        <div className="text-center test-header" style={{ marginBottom: '3rem' }}>
           <div className="section-eyebrow">Customer Love</div>
           <h2 className="section-title">
             What Our <span className="section-title-gradient">Customers Say</span>
@@ -65,30 +151,32 @@ const Testimonials = () => {
           </p>
         </div>
 
-        <div className="testimonials-grid">
-          {reviews.map((r, i) => (
-            <div key={i} className="testimonial-card">
-              <div className="testimonial-stars">
-                {'⭐'.repeat(r.rating)}
-              </div>
-              <p className="testimonial-text">"{r.text}"</p>
-              <div className="testimonial-product">
-                <span className="product-tag">🪔 {r.product}</span>
-              </div>
-              <div className="testimonial-author">
-                <div className="author-avatar">
-                  <span>{r.initials}</span>
+        <div className="testimonials-scroll">
+          <div className="testimonials-grid">
+            {reviews.map((r, i) => (
+              <div key={i} className="testimonial-card">
+                <div className="testimonial-stars" aria-label={`${r.rating} out of 5 stars`}>
+                  {'★'.repeat(r.rating)}
                 </div>
-                <div>
-                  <div className="author-name">{r.name}</div>
-                  <div className="author-location">📍 {r.location}</div>
+                <p className="testimonial-text">"{r.text}"</p>
+                <div className="testimonial-product">
+                  <span className="product-tag">{r.product}</span>
+                </div>
+                <div className="testimonial-author">
+                  <div className="author-avatar">
+                    <span>{r.initials}</span>
+                  </div>
+                  <div>
+                    <div className="author-name">{r.name}</div>
+                    <div className="author-location">{r.location}</div>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
 
-        {/* Summary bar */}
+        {/* Summary bar with animated counters */}
         <div className="testimonials-summary">
           <div className="summary-stat">
             <span className="stat-value">4.9★</span>
@@ -96,17 +184,17 @@ const Testimonials = () => {
           </div>
           <div className="summary-divider" />
           <div className="summary-stat">
-            <span className="stat-value">2,400+</span>
+            <span className="stat-value"><AnimatedCounter target="2400" suffix="+" /></span>
             <span className="stat-label">Happy Customers</span>
           </div>
           <div className="summary-divider" />
           <div className="summary-stat">
-            <span className="stat-value">98%</span>
+            <span className="stat-value"><AnimatedCounter target="98" suffix="%" /></span>
             <span className="stat-label">Repeat Orders</span>
           </div>
           <div className="summary-divider" />
           <div className="summary-stat">
-            <span className="stat-value">30+</span>
+            <span className="stat-value"><AnimatedCounter target="30" suffix="+" /></span>
             <span className="stat-label">Cities Served</span>
           </div>
         </div>
