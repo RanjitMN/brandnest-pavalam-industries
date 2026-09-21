@@ -104,7 +104,7 @@ export const useAuthStore = create(
     }),
     {
       name: 'pavalam-auth',
-      partialize: (state) => ({ user: state.user, profile: state.profile }),
+      partialize: (state) => ({ profile: state.profile }),
     }
   )
 );

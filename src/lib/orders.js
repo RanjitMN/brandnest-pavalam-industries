@@ -32,7 +32,7 @@ export async function insertOrderWithItems(orderPayload, lineItems) {
       image_url: item.image_url || null,
     }));
     const { error: itemsError } = await supabase.from('order_items').insert(rows);
-    if (itemsError) console.warn('order_items insert failed', itemsError);
+    if (itemsError) throw new Error(`Failed to save order items: ${itemsError.message}`);
   }
 
   await decrementStock(lineItems);
